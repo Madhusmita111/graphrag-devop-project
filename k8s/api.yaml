@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: graphrag-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: graphrag-api
+  template:
+    metadata:
+      labels:
+        app: graphrag-api
+    spec:
+      # imagePullSecrets: # Optional/Not needed if deploying on the IAM-profile-enabled EC2 instance!
+      # - name: ecr-registry-secret
+      containers:
+      - name: api
+        image: 933428634281.dkr.ecr.us-east-1.amazonaws.com/graphrag-api:latest
+        imagePullPolicy: Always
+        env:
+        - name: NEO4J_URI
+          value: "bolt://neo4j:7687"
+        - name: NEO4J_USER
+          value: "neo4j"
+        - name: NEO4J_PASSWORD
+          value: "password"
+        - name: GROQ_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: groq-secret
+              key: api-key
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: graphrag-api
+spec:
+  type: LoadBalancer
+  selector:
+    app: graphrag-api
+  ports:
+    - name: http
+      port: 80
+      targetPort: 8000

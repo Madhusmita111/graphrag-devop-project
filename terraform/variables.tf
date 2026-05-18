@@ -1,11 +1,15 @@
-variable "aws_region" {
-  description = "The AWS region to deploy to"
-  type        = string
-  default     = "us-east-1"
+variable "region" {
+  default = "ap-south-1"
 }
 
-variable "cluster_name" {
-  description = "Name of the EKS cluster"
-  type        = string
-  default     = "graphrag-eks-cluster"
+variable "instance_type" {
+  default = "t3.small" 
 }
+
+
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+  default     = "graphrag-devops"
+}
+

@@ -1,0 +1,17 @@
+Kubernetes, often abbreviated as K8s, is an open-source container orchestration platform originally designed by Google. It was released in 2014 and is now maintained by the Cloud Native Computing Foundation (CNCF). Kubernetes automates the deployment, scaling, and management of containerized applications.
+
+Docker is a platform for developing, shipping, and running applications in containers. Docker was created by Solomon Hykes at dotCloud, which later became Docker Inc. Docker uses a client-server architecture where the Docker daemon manages containers. Kubernetes and Docker work together — Kubernetes orchestrates Docker containers across multiple hosts.
+
+Amazon Web Services (AWS) is a cloud computing platform by Amazon. AWS provides services like EC2 for virtual machines, S3 for storage, EKS for managed Kubernetes, and ECR for container registries. Many organizations use AWS with Kubernetes to deploy scalable applications.
+
+Terraform is an Infrastructure as Code (IaC) tool created by HashiCorp. Terraform allows engineers to define cloud infrastructure using declarative configuration files written in HCL (HashiCorp Configuration Language). Terraform supports multiple cloud providers including AWS, Google Cloud, and Azure.
+
+Neo4j is a graph database management system developed by Neo4j Inc. It uses the Cypher query language for querying graph data. Neo4j is widely used in knowledge graphs, fraud detection, recommendation engines, and network analysis. GraphRAG systems often use Neo4j to store entities and their relationships extracted from documents.
+
+Jenkins is an open-source automation server used for continuous integration and continuous delivery (CI/CD). Jenkins was originally developed by Kohsuke Kawaguchi at Sun Microsystems. Jenkins supports building, testing, and deploying software through configurable pipelines defined in Jenkinsfiles.
+
+Prometheus is an open-source monitoring and alerting toolkit originally built at SoundCloud. Prometheus collects metrics from configured targets at given intervals, evaluates rule expressions, and can trigger alerts. Grafana is a multi-platform open-source analytics and visualization tool that works with Prometheus to create dashboards.
+
+FastAPI is a modern Python web framework created by Sebastián Ramírez. FastAPI is built on top of Starlette for web handling and Pydantic for data validation. It automatically generates OpenAPI documentation and supports async operations, making it ideal for building high-performance APIs.
+
+LangChain is a framework for developing applications powered by large language models (LLMs). It was created by Harrison Chase. LangChain provides tools for prompt management, chain composition, and integration with vector databases. GraphRAG extends traditional RAG by using knowledge graphs instead of or alongside vector databases for context retrieval.

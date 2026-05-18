@@ -1,0 +1,11 @@
+venv/
+__pycache__/
+*.pyc
+.git/
+.gitignore
+terraform/
+k8s/
+sample_data/
+*.pem
+*.tfstate*
+.terraform/
