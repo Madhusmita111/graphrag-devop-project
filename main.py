@@ -6,74 +6,71 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
 load_dotenv()
 
 from app.models import (
     IngestRequest, IngestResponse,
     QueryRequest, QueryResponse,
-    GraphStats,
 )
 from app.graph_store import GraphStore
-from app.entity_extractor import EntityExtractor
 from app.graph_rag import GraphRAGEngine
 
 
-# ── Configuration ──────────────────────────────────────────────────
+# =============================
+# CONFIGURATION
+# =============================
 
-NEO4J_URI = os.getenv("NEO4J_URI", "bolt://localhost:7687")
+NEO4J_URI = os.getenv("NEO4J_URI", "bolt://neo4j:7687")  # FIXED
 NEO4J_USER = os.getenv("NEO4J_USER", "neo4j")
 NEO4J_PASSWORD = os.getenv("NEO4J_PASSWORD", "password")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")
 
 
-# ── App Lifecycle ──────────────────────────────────────────────────
-
 graph_store: GraphStore | None = None
 rag_engine: GraphRAGEngine | None = None
 
 
+# =============================
+# LIFECYCLE
+# =============================
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Startup and shutdown logic."""
     global graph_store, rag_engine
 
-    # Startup
     try:
         graph_store = GraphStore(NEO4J_URI, NEO4J_USER, NEO4J_PASSWORD)
         if graph_store.verify_connection():
-            print("✅ Connected to Neo4j")
+            print("Connected to Neo4j")
         else:
-            print("⚠️  Neo4j connection could not be verified")
+            print("Neo4j connection failed")
     except Exception as e:
-        print(f"❌ Failed to connect to Neo4j: {e}")
+        print(f"Neo4j error: {e}")
         graph_store = None
 
+    if not GROQ_API_KEY:
+        print("WARNING: GROQ API KEY not set")
+
     if GROQ_API_KEY and graph_store:
-        extractor = EntityExtractor(api_key=GROQ_API_KEY)
-        rag_engine = GraphRAGEngine(graph_store=graph_store, extractor=extractor)
-        print("✅ GraphRAG engine initialised with Groq")
-    elif not GROQ_API_KEY:
-        print("⚠️  GROQ_API_KEY not set — /ingest and /ask will not work")
-    
+        rag_engine = GraphRAGEngine(graph_store=graph_store)
+        print("GraphRAG engine ready")
+    else:
+        rag_engine = None
+
     yield
 
-    # Shutdown
     if graph_store:
         graph_store.close()
-        print("🔌 Neo4j connection closed")
+        print("Neo4j connection closed")
 
 
-# ── FastAPI App ────────────────────────────────────────────────────
+# =============================
+# FASTAPI APP
+# =============================
 
 app = FastAPI(
-    title="Enterprise GraphRAG Knowledge Engine",
-    description=(
-        "A production-grade GraphRAG system that ingests documents, "
-        "builds a knowledge graph in Neo4j, and answers questions "
-        "using graph-enhanced retrieval with Groq API (Llama 3)."
-    ),
-    version="2.0.0",
+    title="GraphRAG Knowledge Engine",
+    version="2.0",
     lifespan=lifespan,
 )
 
@@ -85,113 +82,84 @@ app.add_middleware(
 )
 
 
-# ── Health ─────────────────────────────────────────────────────────
+# =============================
+# HEALTH
+# =============================
 
-@app.get("/health", tags=["System"])
+@app.get("/health")
 def health_check():
-    """Health check — reports Neo4j and Groq status."""
     neo4j_ok = graph_store.verify_connection() if graph_store else False
     return {
         "status": "healthy" if neo4j_ok else "degraded",
-        "neo4j_connected": neo4j_ok,
-        "groq_configured": bool(GROQ_API_KEY),
-        "rag_engine_ready": rag_engine is not None,
+        "neo4j": neo4j_ok,
+        "groq": bool(GROQ_API_KEY),
+        "engine": rag_engine is not None,
     }
 
 
-# ── Ingestion ──────────────────────────────────────────────────────
+# =============================
+# INGEST
+# =============================
 
-@app.post("/ingest", response_model=IngestResponse, tags=["GraphRAG"])
-def ingest_document(request: IngestRequest):
-    """Ingest a document: extract entities & relationships → store in Neo4j.
-    
-    The LLM analyses the text, identifies entities (people, orgs, technologies, etc.)
-    and their relationships, then stores them as nodes and edges in the knowledge graph.
-    """
+@app.post("/ingest", response_model=IngestResponse)
+def ingest(request: IngestRequest):
+
     if not rag_engine:
-        raise HTTPException(
-            status_code=503,
-            detail="GraphRAG engine not available. Check GROQ_API_KEY and Neo4j connection.",
-        )
+        raise HTTPException(status_code=503, detail="GraphRAG not ready")
 
     if not request.text.strip():
-        raise HTTPException(status_code=400, detail="Text cannot be empty.")
+        raise HTTPException(status_code=400, detail="Empty text")
 
     try:
-        result = rag_engine.ingest_document(
+        return rag_engine.ingest_document(
             text=request.text,
-            source_name=request.source_name,
+            source_name=request.source_name
         )
-        return result
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Ingestion failed: {e}")
+        print("error:", e)
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── Question Answering ─────────────────────────────────────────────
+# =============================
+# ASK
+# =============================
 
-@app.post("/ask", response_model=QueryResponse, tags=["GraphRAG"])
-def ask_question(request: QueryRequest):
-    """Ask a question — retrieves relevant graph context and generates an answer.
-    
-    The system:
-    1. Extracts search terms from your question
-    2. Finds relevant entities and relationships in the knowledge graph
-    3. Uses the graph context to generate a grounded answer via LLM
-    """
+@app.post("/ask", response_model=QueryResponse)
+def ask(request: QueryRequest):
+
     if not rag_engine:
-        raise HTTPException(
-            status_code=503,
-            detail="GraphRAG engine not available. Check GROQ_API_KEY and Neo4j connection.",
-        )
+        raise HTTPException(status_code=503, detail="GraphRAG not ready")
 
     if not request.query.strip():
-        raise HTTPException(status_code=400, detail="Query cannot be empty.")
+        raise HTTPException(status_code=400, detail="Empty query")
 
     try:
-        result = rag_engine.ask(query=request.query)
-        return result
+        return rag_engine.ask(request.query)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Query failed: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 
-# ── Graph Exploration ──────────────────────────────────────────────
+# =============================
+# BASIC GRAPH STATS
+# =============================
 
-@app.get("/graph/stats", response_model=GraphStats, tags=["Knowledge Graph"])
+@app.get("/graph/stats")
 def graph_stats():
-    """Get statistics about the knowledge graph (entity/relationship counts by type)."""
-    if not graph_store or not graph_store.verify_connection():
-        raise HTTPException(status_code=503, detail="Neo4j not connected.")
 
-    stats = graph_store.get_stats()
-    return GraphStats(**stats)
+    if not graph_store:
+        raise HTTPException(status_code=503, detail="Neo4j not connected")
+
+    return graph_store.get_stats()
 
 
-@app.get("/graph/entities", tags=["Knowledge Graph"])
+# =============================
+# ENTITY LIST
+# =============================
+
+@app.get("/graph/entities")
 def list_entities(limit: int = 100):
-    """List all entities in the knowledge graph."""
-    if not graph_store or not graph_store.verify_connection():
-        raise HTTPException(status_code=503, detail="Neo4j not connected.")
 
-    return graph_store.get_all_entities(limit=limit)
+    if not graph_store:
+        raise HTTPException(status_code=503, detail="Neo4j not connected")
 
-
-@app.get("/graph/search/{term}", tags=["Knowledge Graph"])
-def search_entities(term: str, limit: int = 20):
-    """Search entities by name (case-insensitive partial match)."""
-    if not graph_store or not graph_store.verify_connection():
-        raise HTTPException(status_code=503, detail="Neo4j not connected.")
-
-    return graph_store.search_entities(term=term, limit=limit)
-
-
-@app.get("/graph/entity/{name}", tags=["Knowledge Graph"])
-def get_entity_context(name: str):
-    """Get an entity and its connected neighbourhood (subgraph)."""
-    if not graph_store or not graph_store.verify_connection():
-        raise HTTPException(status_code=503, detail="Neo4j not connected.")
-
-    context = graph_store.get_entity_context(entity_name=name)
-    if not context["nodes"]:
-        raise HTTPException(status_code=404, detail=f"Entity '{name}' not found.")
-
-    return context
+    return graph_store.get_all_entities(limit)

@@ -3,7 +3,7 @@ pipeline {
 
     environment {
         AWS_REGION         = 'ap-south-1'
-        AWS_ACCOUNT_ID     = '933428634281' // Replace with actual AWS Account ID if different
+        AWS_ACCOUNT_ID     = '933428634281'
         ECR_REPO_NAME      = 'graphrag-api'
         ECR_REGISTRY       = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
         IMAGE_TAG          = "latest" // Or use "${env.BUILD_NUMBER}"
