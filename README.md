@@ -1,90 +1,75 @@
 cat << 'EOF' > README.md
-#  GraphRAG DevOps Project
+#  GraphRAG DevOps Platform
 
-> Production-ready GraphRAG system with full DevOps pipeline (Docker, Kubernetes, Terraform, Jenkins)
+> End-to-end GraphRAG system with production-grade DevOps pipeline (Docker, Kubernetes, Terraform, Jenkins)
 
 ---
 
 ##  Overview
 
-This project implements a **Graph-based Retrieval-Augmented Generation (GraphRAG)** system integrated with a complete **DevOps lifecycle**.
+This project builds a **Graph-based Retrieval-Augmented Generation (GraphRAG)** system and deploys it using a complete **DevOps workflow**.
 
-It combines:
-- LLM-powered question answering
-- Knowledge graph + semantic retrieval
-- Containerized microservices
-- CI/CD automation
-- Cloud-ready infrastructure
+It is designed to demonstrate how modern AI systems move from:
+**prototype → container → pipeline → scalable deployment**
 
 ---
 
-##  Architecture
+##  Key Highlights
+
+- GraphRAG-based intelligent query system
+- Backend API for model interaction
+- Frontend interface for user queries
+- Fully containerized using Docker
+- Kubernetes-ready deployment
+- Infrastructure provisioning via Terraform
+- CI/CD automation using Jenkins
+
+---
+
+##  System Flow
 
 \`\`\`
-User → Frontend → FastAPI Backend → GraphRAG Engine
-                                ↙            ↘
-                         Vector DB        Graph DB
-                                ↘            ↙
-                                   LLM
+User → Frontend → Backend API → GraphRAG Processing → Response
 \`\`\`
 
 ---
 
 ##  Project Structure
 
-
+\`\`\`
 graphrag-devop-project/
 │
-├── app/                # Backend (GraphRAG logic)
+├── app/                # Core backend logic
 ├── frontend/           # UI layer
-├── k8s/                # Kubernetes manifests
-├── terraform/          # Infrastructure as Code
-├── sample_data/        # Sample datasets
+├── k8s/                # Kubernetes configs
+├── terraform/          # Infrastructure setup
+├── sample_data/        # Example data
 │
-├── Dockerfile
-├── docker-compose.yml
-├── Jenkinsfile
-├── main.py
+├── Dockerfile          # Container definition
+├── docker-compose.yml  # Multi-service setup
+├── Jenkinsfile         # CI/CD pipeline
+├── main.py             # Entry point
 ├── requirements.txt
 └── .env.example
-
-
----
-
-##  Features
-
-- GraphRAG-based intelligent retrieval
-- FastAPI backend for serving APIs
-- Frontend interface for user queries
-- Dockerized services
-- Kubernetes deployment support
-- Terraform for infra provisioning
-- Jenkins CI/CD pipeline
-- Scalable and production-ready design
+\`\`\`
 
 ---
 
 ##  Tech Stack
 
-### AI / ML
-- Python
-- LLM APIs
-- Embeddings
-
-### Backend
-- FastAPI
-
-### DevOps
-- Docker
-- Kubernetes
-- Jenkins
-- Terraform
+- **Language:** Python  
+- **Backend:** FastAPI (or similar ASGI framework)  
+- **Frontend:** Web UI (inside /frontend)  
+- **Containerization:** Docker  
+- **Orchestration:** Kubernetes  
+- **CI/CD:** Jenkins  
+- **Infrastructure:** Terraform  
 
 ---
 
 ##  Setup
 
-### 1. Clone Repo
+### Clone the repository
 \`\`\`bash
 git clone https://github.com/Madhusmita111/graphrag-devop-project.git
 cd graphrag-devop-project
@@ -92,20 +77,20 @@ cd graphrag-devop-project
 
 ---
 
-### 2. Create Virtual Environment
+### Create virtual environment
 \`\`\`bash
 python -m venv venv
 source venv/bin/activate
 \`\`\`
 
 Windows:
-\`\`\`powershell
+\`\`\`
 venv\Scripts\activate
 \`\`\`
 
 ---
 
-### 3. Install Dependencies
+### Install dependencies
 \`\`\`bash
 pip install -r requirements.txt
 \`\`\`
@@ -114,28 +99,29 @@ pip install -r requirements.txt
 
 ##  Environment Variables
 
-Create a `.env` file:
+Create a `.env` file using:
 
-\`\`\`env
-API_KEY=your_api_key
-MODEL_NAME=your_model
+\`\`\`bash
+cp .env.example .env
 \`\`\`
+
+Update values as required.
 
 ---
 
-##  Docker
+##  Docker Usage
 
-### Build
+### Build image
 \`\`\`bash
 docker build -t graphrag-app .
 \`\`\`
 
-### Run
+### Run container
 \`\`\`bash
 docker run -p 8000:8000 graphrag-app
 \`\`\`
 
-### Docker Compose
+### Using docker-compose
 \`\`\`bash
 docker-compose up --build
 \`\`\`
@@ -144,71 +130,52 @@ docker-compose up --build
 
 ##  Kubernetes Deployment
 
+Apply manifests:
 \`\`\`bash
 kubectl apply -f k8s/
 \`\`\`
 
-Check pods:
+Check resources:
 \`\`\`bash
 kubectl get pods
 \`\`\`
 
 ---
 
-##  Terraform (Infrastructure)
+##  Terraform Infrastructure
 
-Initialize:
 \`\`\`bash
 cd terraform
 terraform init
-\`\`\`
-
-Apply:
-\`\`\`bash
 terraform apply
 \`\`\`
 
 ---
 
-##  CI/CD (Jenkins)
+##  CI/CD Pipeline
 
-Pipeline stages:
-- Build
-- Test
-- Dockerize
-- Deploy
+The project includes a Jenkins pipeline defined in:
 
-Run Jenkins pipeline using:
 \`\`\`
 Jenkinsfile
 \`\`\`
 
+Typical stages:
+- Build
+- Containerization
+- Deployment
+
 ---
 
-##  Run Application
+##  Run Locally
 
 \`\`\`bash
 uvicorn main:app --reload
 \`\`\`
 
-API Docs:
+Access API docs:
 \`\`\`
 http://localhost:8000/docs
-\`\`\`
-
----
-
-##  API Example
-
-\`\`\`http
-POST /query
-\`\`\`
-
-Request:
-\`\`\`json
-{
-  "question": "Explain GraphRAG"
-}
 \`\`\`
 
 ---
@@ -221,22 +188,23 @@ pytest
 
 ---
 
-##  Future Improvements
+##  Why This Project Matters
 
-- Multi-agent GraphRAG
-- Streaming responses
-- Advanced monitoring (Prometheus + Grafana)
-- RBAC & security layers
+This project demonstrates:
+
+- Applying **AI (GraphRAG)** in a real system
+- Packaging ML systems for production
+- Deploying with **modern DevOps tools**
+- Designing scalable, modular architecture
 
 ---
 
 ##  Author
 
-**Madhusmita**
-
+**Madhusmita**  
 GitHub: https://github.com/Madhusmita111
 
 ---
 
-⭐ Star this repo if you found it useful!
+⭐ Star the repo if you find it useful
 EOF
