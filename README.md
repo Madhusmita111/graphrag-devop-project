@@ -32,7 +32,7 @@ User → Frontend → FastAPI Backend → GraphRAG Engine
 
 ##  Project Structure
 
-\`\`\`
+
 graphrag-devop-project/
 │
 ├── app/                # Backend (GraphRAG logic)
@@ -47,7 +47,7 @@ graphrag-devop-project/
 ├── main.py
 ├── requirements.txt
 └── .env.example
-\`\`\`
+
 
 ---
 
@@ -64,7 +64,7 @@ graphrag-devop-project/
 
 ---
 
-## ⚙️ Tech Stack
+##  Tech Stack
 
 ### AI / ML
 - Python
@@ -82,7 +82,7 @@ graphrag-devop-project/
 
 ---
 
-## 🔧 Setup
+##  Setup
 
 ### 1. Clone Repo
 \`\`\`bash
@@ -198,7 +198,7 @@ http://localhost:8000/docs
 
 ---
 
-## 📊 API Example
+##  API Example
 
 \`\`\`http
 POST /query
