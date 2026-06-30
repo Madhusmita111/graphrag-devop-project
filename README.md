@@ -202,9 +202,4 @@ This project demonstrates:
 ##  Author
 
 **Madhusmita**  
-GitHub: https://github.com/Madhusmita111
-
 ---
-
-⭐ Star the repo if you find it useful
-EOF
