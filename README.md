@@ -1,4 +1,4 @@
-cat << 'EOF' > README.md
+
 #  GraphRAG DevOps Platform
 
 > End-to-end GraphRAG system with production-grade DevOps pipeline (Docker, Kubernetes, Terraform, Jenkins)
